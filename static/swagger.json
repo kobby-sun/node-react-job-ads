@@ -1,0 +1,465 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Swagger Ad Store",
+    "description": "Ad Store API swagger-2.0 specification",
+    "termsOfService": "http://helloreverb.com/terms/",
+    "contact": {
+      "name": "Kobby Sun",
+      "email": "kobbysun@gmail.com",
+      "url": "https://github.com/kobby-sun"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT"
+    }
+  },
+  "host": "localhost:8000",
+  "basePath": "/api",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "definitions": {
+    "product": {
+      "required": [
+        "ID",
+        "Name",
+        "Price"
+      ],
+      "properties": {
+        "ID": {
+          "type": "string",
+          "minLength": 2
+        },
+        "Name": {
+          "type": "string",
+          "minLength": 2,
+          "pattern": "^[a-zA-Z0-9- ]+$"
+        },
+        "Price": {
+          "type": "number"
+        }
+      }
+    },
+    "customer": {
+      "required": [
+        "Name",
+        "Premier"
+      ],
+      "properties": {
+        "Name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "Desc": {
+          "type": "string"
+        },
+        "Premier": {
+          "$ref": "#/definitions/premier"
+        }
+      }
+    },
+    "premier": {
+      "required": [
+        "Name",
+        "Discounts"
+      ],
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "Desc": {
+          "type": "string"
+        },
+        "Discounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/discount"
+          }
+        },
+        "ValidTo": {
+          "type": "string"
+        }
+      }
+    },
+    "discount": {
+      "required": [
+        "Name",
+        "Product",
+        "Rule",
+        "Discount"
+      ],
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "Desc": {
+          "type": "string"
+        },
+        "Product": {
+          "$ref": "#/definitions/product"
+        },
+        "Rule": {
+          "type": "string"
+        },
+        "Discount": {
+          "type": "number"
+        }
+      }
+    },
+    "error": {
+      "required": [
+        "Code",
+        "Message"
+      ],
+      "properties": {
+        "Code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "Message": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "customerName": {
+      "name": "CustomerName",
+      "in": "path",
+      "description": "name of the customer",
+      "required": true,
+      "type": "string"
+    },
+    "productName": {
+      "name": "ProductName",
+      "in": "path",
+      "description": "name of the product",
+      "required": true,
+      "type": "string"
+    },
+    "discountName": {
+      "name": "DiscountName",
+      "in": "path",
+      "description": "name of the discount",
+      "required": true,
+      "type": "string"
+    }
+  },
+  "paths": {
+    "/discounts": {
+      "get": {
+        "description": "Returns all discounts",
+        "operationId": "findDiscounts",
+        "security": [],
+        "produces": [
+          "application/json",
+          "application/xml",
+          "text/xml",
+          "text/html"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "discount response",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/discount"
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new discount in the store.",
+        "operationId": "addDiscount",
+        "security": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "DiscountData",
+            "in": "body",
+            "description": "discount to add to the store",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/discount"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "discount response",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "description": "Swagger-Express-Middleware will automatically set this header appropriately"
+              }
+            }
+          },
+          "409": {
+            "description": "new discount conflicts with an existing discount (i.e. they have the same name)"
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/discounts/{DiscountName}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/discountName"
+        }
+      ],
+      "get": {
+        "description": "Returns discount by name",
+        "operationId": "findDiscount",
+        "security": [],
+        "produces": [
+          "application/json",
+          "application/xml",
+          "text/xml",
+          "text/html"
+        ],
+        "responses": {
+          "200": {
+            "description": "discount response",
+            "schema": {
+              "$ref": "#/definitions/discount"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "description": "Returns all products",
+        "operationId": "findProducts",
+        "security": [],
+        "produces": [
+          "application/json",
+          "application/xml",
+          "text/xml",
+          "text/html"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "product response",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/product"
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new product in the store.",
+        "operationId": "addProduct",
+        "security": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "CustomerData",
+            "in": "body",
+            "description": "product to add to the store",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/product"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "product response",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "description": "Swagger-Express-Middleware will automatically set this header appropriately"
+              }
+            }
+          },
+          "409": {
+            "description": "new product conflicts with an existing product (i.e. they have the same name)"
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/products/{ProductName}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/productName"
+        }
+      ],
+      "get": {
+        "description": "Returns product by name",
+        "operationId": "findProduct",
+        "security": [],
+        "produces": [
+          "application/json",
+          "application/xml",
+          "text/xml",
+          "text/html"
+        ],
+        "responses": {
+          "200": {
+            "description": "product response",
+            "schema": {
+              "$ref": "#/definitions/product"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/customers": {
+      "get": {
+        "description": "Returns all customers",
+        "operationId": "findCustomers",
+        "security": [],
+        "produces": [
+          "application/json",
+          "application/xml",
+          "text/xml",
+          "text/html"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "customer response",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/customer"
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new customer in the store.",
+        "operationId": "addCustomer",
+        "security": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "CustomerData",
+            "in": "body",
+            "description": "Customer to add to the store",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/customer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "customer response",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "description": "Swagger-Express-Middleware will automatically set this header appropriately"
+              }
+            }
+          },
+          "409": {
+            "description": "new customer conflicts with an existing customer (i.e. they have the same name)"
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/customers/{CustomerName}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/customerName"
+        }
+      ],
+      "get": {
+        "description": "Returns customer by name",
+        "operationId": "findCustomer",
+        "security": [],
+        "produces": [
+          "application/json",
+          "application/xml",
+          "text/xml",
+          "text/html"
+        ],
+        "responses": {
+          "200": {
+            "description": "customer response",
+            "schema": {
+              "$ref": "#/definitions/customer"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    }
+  }
+}

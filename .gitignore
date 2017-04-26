@@ -1,0 +1,14 @@
+.idea/
+node_modules/
+*.log
+*.map
+*.hot-update.js
+*.hot-update.json
+npm-debug.log.*
+update/
+sessions.db
+server.js
+server.js.map
+
+
+
